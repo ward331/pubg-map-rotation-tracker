@@ -31,7 +31,7 @@ message = f"""📢 **PUBG Map Rotation Update** — {today}
 🎮 **Console Normal Match**
 """ + "\n".join([f"- {name} — {percent}" for name, percent in CONSOLE_ROTATION]) + """
 
-🌐 https://glittering-hotteok-f6b8ac.netlify.app
+🌐 https://www.armchairwarriors.org
 """
 
 requests.post(WEBHOOK_URL, json={"content": message})
