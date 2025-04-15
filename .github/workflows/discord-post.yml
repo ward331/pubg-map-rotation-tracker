@@ -1,0 +1,23 @@
+name: Daily Discord Rotation Post
+
+on:
+  schedule:
+    - cron: '0 9 * * *'  # 5 AM EST / 9 AM UTC
+  workflow_dispatch:
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Run the Discord rotation script
+        run: python discord_rotation_poster.py
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
