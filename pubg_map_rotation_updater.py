@@ -109,3 +109,7 @@ with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
     f.write(html)
 
 print(f"✅ Updated {OUTPUT_FILE} with PUBG map rotation.")
+
+with open(OUTPUT_FILE, "r", encoding="utf-8") as f:
+    print(f.read())
+
