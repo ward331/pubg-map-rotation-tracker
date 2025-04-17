@@ -105,11 +105,11 @@ html += f"""
 </html>
 """
 
+# Write to index.html
 with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
     f.write(html)
 
-print(f"✅ Updated {OUTPUT_FILE} with PUBG map rotation.")
-
+# Debug: Output contents to GitHub Actions log
 with open(OUTPUT_FILE, "r", encoding="utf-8") as f:
+    print("✅ HTML content written to index.html:\n")
     print(f.read())
-
