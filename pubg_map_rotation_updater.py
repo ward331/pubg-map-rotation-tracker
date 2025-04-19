@@ -3,19 +3,19 @@ from datetime import date
 OUTPUT_FILE = "index.html"
 
 PC_ROTATION = [
+    ("Erangel", "33%"),
+    ("Deston", "17%"),
+    ("Vikendi", "17%"),
+    ("Miramar", "17%"),
+    ("Taego", "17%")
+]
+
+CONSOLE_ROTATION = [
     ("Erangel", "36%"),
     ("Vikendi", "18%"),
     ("Paramo", "9%"),
     ("Rondo", "18%"),
     ("Miramar", "18%")
-]
-
-CONSOLE_ROTATION = [
-    ("Erangel", "20%"),
-    ("Taego", "20%"),
-    ("Rondo", "20%"),
-    ("Vikendi", "20%"),
-    ("Deston", "20%")
 ]
 
 MAP_IMAGES = {
@@ -105,11 +105,10 @@ html += f"""
 </html>
 """
 
-# Write to index.html
 with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
     f.write(html)
 
-# Debug: Output contents to GitHub Actions log
+# Log the output in GitHub Actions for debugging
 with open(OUTPUT_FILE, "r", encoding="utf-8") as f:
-    print("✅ HTML content written to index.html:\n")
+    print("✅ index.html content preview:\n")
     print(f.read())
