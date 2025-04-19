@@ -1,47 +1,16 @@
 {
-  "last_updated": "2025-04-19",
-  "pc": [
-    {
-      "name": "Erangel",
-      "percent": "36%"
-    },
-    {
-      "name": "Vikendi",
-      "percent": "18%"
-    },
-    {
-      "name": "Paramo",
-      "percent": "9%"
-    },
-    {
-      "name": "Rondo",
-      "percent": "18%"
-    },
-    {
-      "name": "Miramar",
-      "percent": "18%"
-    }
+  "PC_ROTATION": [
+    ["Erangel", "36%"],
+    ["Vikendi", "18%"],
+    ["Paramo", "9%"],
+    ["Rondo", "18%"],
+    ["Miramar", "18%"]
   ],
-  "console": [
-    {
-      "name": "Erangel",
-      "percent": "20%"
-    },
-    {
-      "name": "Taego",
-      "percent": "20%"
-    },
-    {
-      "name": "Rondo",
-      "percent": "20%"
-    },
-    {
-      "name": "Vikendi",
-      "percent": "20%"
-    },
-    {
-      "name": "Deston",
-      "percent": "20%"
-    }
+  "CONSOLE_ROTATION": [
+    ["Erangel", "20%"],
+    ["Taego", "20%"],
+    ["Rondo", "20%"],
+    ["Vikendi", "20%"],
+    ["Deston", "20%"]
   ]
 }
