@@ -1,27 +1,25 @@
 import requests
+import json
 import os
 from datetime import date
 
-# Load the webhook from GitHub Secrets
 WEBHOOK_URL = os.environ["DISCORD_WEBHOOK_URL"]
 
-# PC Rotation only
-PC_ROTATION = [
-    ("Erangel", "36%"),
-    ("Vikendi", "18%"),
-    ("Paramo", "9%"),
-    ("Rondo", "18%"),
-    ("Miramar", "18%")
-]
+# Read rotation data from JSON
+with open("rotation_data.json", "r", encoding="utf-8") as f:
+    data = json.load(f)
 
-# Format today's date
+PC_ROTATION = data["PC_ROTATION"]
+CONSOLE_ROTATION = data["CONSOLE_ROTATION"]
+
 today = date.today().strftime("%B %d, %Y")
 
-# Build the Discord message
-message = f"""📢 **PUBG PC Map Rotation Update** — {today}
+message = f"""📢 **PUBG Map Rotation Update** — {today}
 
 🖥️ **PC Normal Match**
-""" + "\n".join([f"- {name} — {percent}" for name, percent in PC_ROTATION])
+""" + "\n".join([f"- {name} — {percent}" for name, percent in PC_ROTATION]) + """
 
-# Send it to Discord
+🎮 **Console Normal Match**
+""" + "\n".join([f"- {name} — {percent}" for name, percent in CONSOLE_ROTATION])
+
 requests.post(WEBHOOK_URL, json={"content": message})
