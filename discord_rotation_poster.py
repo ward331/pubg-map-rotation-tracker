@@ -19,7 +19,7 @@ message = f"""📢 **PUBG Map Rotation Update** — {today}
 🖥️ **PC Normal Match**
 """ + "\n".join([f"- {name} — {percent}" for name, percent in PC_ROTATION]) + """
 
-🎮 **Console Normal Match**
-""" + "\n".join([f"- {name} — {percent}" for name, percent in CONSOLE_ROTATION])
+# 🎮 **Console Normal Match**
+# """ + "\n".join([f"- {name} — {percent}" for name, percent in CONSOLE_ROTATION])
 
 requests.post(WEBHOOK_URL, json={"content": message})
