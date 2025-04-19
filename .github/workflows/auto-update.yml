@@ -2,8 +2,10 @@ name: Auto Update Map Rotation
 
 on:
   schedule:
-    - cron: '0 6 * * 3'  # Wednesday at 6:00 AM UTC
-    - cron: '0 6 * * 4'  # Thursday at 6:00 AM UTC
+    - cron: '0 10 * * *'  # 5 AM EST
+    - cron: '0 16 * * *'  # 11 AM EST
+    - cron: '0 22 * * *'  # 5 PM EST
+    - cron: '0 4 * * *'   # 11 PM EST
   workflow_dispatch:
 
 jobs:
@@ -19,16 +21,37 @@ jobs:
         with:
           python-version: '3.x'
 
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4
+
       - name: Run updater script
         run: python pubg_map_rotation_updater.py
 
-      - name: Commit and push changes
-        env:
-          PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
+      - name: Check for changes
+        id: changes
         run: |
           git config --global user.name "GitHub Action"
           git config --global user.email "action@github.com"
-          git remote set-url origin https://x-access-token:${PAT_TOKEN}@github.com/${{ github.repository }}
-          git add index.html
-          git commit -m "Auto-update PUBG map rotation" || echo "No changes to commit"
-          git push
+          git add index.html rotation_data.json
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "Changes found. Committing..."
+            git commit -m "Auto-update PUBG map rotation"
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Push changes
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
+        run: |
+          git push https://x-access-token:${PAT_TOKEN}@github.com/${{ github.repository }}.git HEAD:main
+
+      - name: Trigger Discord post
+        if: steps.changes.outputs.changed == 'true'
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: discord-post.yml
+          token: ${{ secrets.PAT_TOKEN }}
