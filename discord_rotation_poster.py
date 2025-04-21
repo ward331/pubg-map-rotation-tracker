@@ -19,41 +19,40 @@ official_maps = [name for name, _ in PC_ROTATION]
 # Format official rotation for message
 formatted_official = "\n".join([f"- {name} — {percent}" for name, percent in PC_ROTATION])
 
-# Scrape community rotation from pubgchallenge.co
+# Scrape community rotation from pubgchallenge.co (with percentages)
 def get_community_maps():
     url = "https://pubgchallenge.co/pubg-map-rotation"
     headers = {"User-Agent": "Mozilla/5.0"}
     response = requests.get(url, headers=headers)
     soup = BeautifulSoup(response.text, "html.parser")
-    maps = []
+    map_data = []
 
     try:
-        # Find the PC section by matching the exact heading
         current_rotation_header = soup.find("h2", string=lambda s: s and "Current PUBG Map Rotation (PC)" in s)
         if current_rotation_header:
-            for sibling in current_rotation_header.find_all_next("h3"):
-                name = sibling.get_text(strip=True)
-                if name in [
-                    "Erangel", "Deston", "Vikendi", "Miramar", "Taego",
-                    "Paramo", "Rondo", "Haven", "Karakin", "Sanhok"
-                ] and name not in maps:
-                    maps.append(name)
+            for row in current_rotation_header.find_all_next("div", class_="map-row"):
+                name_tag = row.find("h3")
+                percent_tag = row.find("span", class_="map-percentage")
+                if name_tag and percent_tag:
+                    name = name_tag.get_text(strip=True)
+                    percent = percent_tag.get_text(strip=True)
+                    map_data.append((name, percent))
     except Exception as e:
         print("Error scraping community maps:", e)
 
-    return maps
+    return map_data
 
 # Get community map list
-community_maps = get_community_maps()
+community_map_data = get_community_maps()
 
-# Debug output to GitHub Actions logs
-print("✅ Community maps scraped:", community_maps)
+# Debug output
+print("✅ Community maps scraped:", community_map_data)
 
-# ✅ Only show community maps that match official rotation
+# ✅ Only include community maps that are in official rotation
 formatted_community = []
-for map_name in community_maps:
-    if map_name in official_maps:
-        formatted_community.append(f"- {map_name}")
+for name, percent in community_map_data:
+    if name in official_maps:
+        formatted_community.append(f"- {name} — {percent}")
 formatted_community_str = "\n".join(formatted_community) if formatted_community else "*No maps found.*"
 
 # Final message to Discord
