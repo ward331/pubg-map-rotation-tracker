@@ -19,7 +19,7 @@ official_maps = [name for name, _ in PC_ROTATION]
 # Format official rotation for message
 formatted_official = "\n".join([f"- {name} — {percent}" for name, percent in PC_ROTATION])
 
-# Scrape from pubgchallenge.co
+# Scrape from pubgchallenge.co (based on live structure)
 def get_community_maps():
     url = "https://pubgchallenge.co/pubg-map-rotation"
     headers = {"User-Agent": "Mozilla/5.0"}
@@ -28,15 +28,20 @@ def get_community_maps():
     map_data = []
 
     try:
-        current_rotation_header = soup.find("h2", string=lambda s: s and "Current PUBG Map Rotation (PC)" in s)
-        if current_rotation_header:
-            for row in current_rotation_header.find_all_next("div", class_="map-row"):
-                name_tag = row.find("h3")
-                percent_tag = row.find("div", class_="map-percentage")
-                if name_tag and percent_tag:
-                    name = name_tag.get_text(strip=True)
-                    percent = percent_tag.get_text(strip=True)
-                    map_data.append((name, percent))
+        # Find the PC rotation section heading
+        pc_header = soup.find("h2", string=lambda s: s and "Current PUBG Map Rotation (PC)" in s)
+        if pc_header:
+            current = pc_header.find_next_sibling()
+            while current:
+                if current.name == "h2":
+                    break  # Stop at next section
+                if current.name == "h3":
+                    name = current.get_text(strip=True)
+                    percent_tag = current.find_next_sibling(text=True)
+                    if name and percent_tag:
+                        percent = percent_tag.strip().replace("probability", "").strip()
+                        map_data.append((name, percent))
+                current = current.find_next_sibling()
     except Exception as e:
         print("Error scraping pubgchallenge.co maps:", e)
 
