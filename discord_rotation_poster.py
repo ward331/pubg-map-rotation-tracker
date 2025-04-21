@@ -19,7 +19,7 @@ official_maps = [name for name, _ in PC_ROTATION]
 # Format official rotation for message
 formatted_official = "\n".join([f"- {name} — {percent}" for name, percent in PC_ROTATION])
 
-# Scrape community rotation from pubgchallenge.co
+# Scrape community rotation from pubgchallenge.co using span.map-name tags
 def get_community_maps():
     url = "https://pubgchallenge.co/pubg-map-rotation"
     headers = {
@@ -31,12 +31,10 @@ def get_community_maps():
     maps = []
 
     try:
-        map_blocks = soup.select("div#pc .map-row")
-        for block in map_blocks:
-            name_tag = block.select_one(".map-name")
-            if name_tag:
-                map_name = name_tag.get_text(strip=True)
-                maps.append(map_name)
+        for tag in soup.find_all("span", class_="map-name"):
+            name = tag.get_text(strip=True)
+            if name and name not in maps:
+                maps.append(name)
     except Exception as e:
         print("Error scraping community maps:", e)
 
