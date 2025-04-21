@@ -31,13 +31,12 @@ def get_community_maps():
     maps = []
 
     try:
-        pc_section = soup.find("div", id="pc")
-        if pc_section:
-            map_spans = pc_section.select("span.map-name")
-            for span in map_spans:
-                name = span.get_text(strip=True)
-                if name:
-                    maps.append(name)
+        map_blocks = soup.select("div#pc .map-row")
+        for block in map_blocks:
+            name_tag = block.select_one(".map-name")
+            if name_tag:
+                map_name = name_tag.get_text(strip=True)
+                maps.append(map_name)
     except Exception as e:
         print("Error scraping community maps:", e)
 
@@ -45,6 +44,9 @@ def get_community_maps():
 
 # Get community map list
 community_maps = get_community_maps()
+
+# Debug output to GitHub Actions logs
+print("✅ Community maps scraped:", community_maps)
 
 # Format community rotation with ⚠️ for maps not in official list
 formatted_community = []
