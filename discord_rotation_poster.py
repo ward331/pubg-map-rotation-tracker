@@ -38,7 +38,7 @@ def get_community_maps():
                     percent = percent_tag.get_text(strip=True)
                     map_data.append((name, percent))
     except Exception as e:
-        print("Error scraping community maps:", e)
+        print("Error scraping pubgchallenge.co maps:", e)
 
     return map_data
 
@@ -66,4 +66,4 @@ message = f"""📢 PUBG PC Map Rotation Update — {today}
 """
 
 # Send message to Discord
-requests.post(WEBHOOK
+requests.post(WEBHOOK_URL, json={"content": message})
