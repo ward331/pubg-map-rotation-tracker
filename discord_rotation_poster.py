@@ -19,7 +19,7 @@ official_maps = [name for name, _ in PC_ROTATION]
 # Format official rotation for message
 formatted_official = "\n".join([f"- {name} — {percent}" for name, percent in PC_ROTATION])
 
-# Scrape community rotation from pubgchallenge.co (with percentages)
+# Scrape from pubgchallenge.co
 def get_community_maps():
     url = "https://pubgchallenge.co/pubg-map-rotation"
     headers = {"User-Agent": "Mozilla/5.0"}
@@ -32,7 +32,7 @@ def get_community_maps():
         if current_rotation_header:
             for row in current_rotation_header.find_all_next("div", class_="map-row"):
                 name_tag = row.find("h3")
-                percent_tag = row.find("span", class_="map-percentage")
+                percent_tag = row.find("div", class_="map-percentage")
                 if name_tag and percent_tag:
                     name = name_tag.get_text(strip=True)
                     percent = percent_tag.get_text(strip=True)
@@ -42,18 +42,18 @@ def get_community_maps():
 
     return map_data
 
-# Get community map list
+# Get PUBGChallenge.co map data
 community_map_data = get_community_maps()
 
 # Debug output
-print("✅ Community maps scraped:", community_map_data)
+print("✅ PUBGChallenge.co maps scraped:", community_map_data)
 
-# ✅ Only include community maps that are in official rotation
-formatted_community = []
+# Filter to only show maps that are in the official rotation
+formatted_pubgchallenge = []
 for name, percent in community_map_data:
     if name in official_maps:
-        formatted_community.append(f"- {name} — {percent}")
-formatted_community_str = "\n".join(formatted_community) if formatted_community else "*No maps found.*"
+        formatted_pubgchallenge.append(f"- {name} — {percent}")
+formatted_pubgchallenge_str = "\n".join(formatted_pubgchallenge) if formatted_pubgchallenge else "*No maps found.*"
 
 # Final message to Discord
 message = f"""📢 PUBG PC Map Rotation Update — {today}
@@ -61,9 +61,9 @@ message = f"""📢 PUBG PC Map Rotation Update — {today}
 🖥️ **Official PUBG Source**
 {formatted_official}
 
-🌐 **Community Source**
-{formatted_community_str}
+🌐 **PUBGChallenge.co Source**
+{formatted_pubgchallenge_str}
 """
 
 # Send message to Discord
-requests.post(WEBHOOK_URL, json={"content": message})
+requests.post(WEBHOOK
