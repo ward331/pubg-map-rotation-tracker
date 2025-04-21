@@ -19,7 +19,7 @@ official_maps = [name for name, _ in PC_ROTATION]
 # Format official rotation for message
 formatted_official = "\n".join([f"- {name} — {percent}" for name, percent in PC_ROTATION])
 
-# ✅ NEW scraper that finds the correct PC maps from h3 headers
+# Scrape community rotation from pubgchallenge.co
 def get_community_maps():
     url = "https://pubgchallenge.co/pubg-map-rotation"
     headers = {"User-Agent": "Mozilla/5.0"}
@@ -28,13 +28,13 @@ def get_community_maps():
     maps = []
 
     try:
-        # Find the PC section by matching the exact text node
+        # Find the PC section by matching the exact heading
         current_rotation_header = soup.find("h2", string=lambda s: s and "Current PUBG Map Rotation (PC)" in s)
         if current_rotation_header:
             for sibling in current_rotation_header.find_all_next("h3"):
                 name = sibling.get_text(strip=True)
                 if name in [
-                    "Erangel", "Deston", "Vikendi", "Miramar", "Taego", 
+                    "Erangel", "Deston", "Vikendi", "Miramar", "Taego",
                     "Paramo", "Rondo", "Haven", "Karakin", "Sanhok"
                 ] and name not in maps:
                     maps.append(name)
@@ -49,11 +49,11 @@ community_maps = get_community_maps()
 # Debug output to GitHub Actions logs
 print("✅ Community maps scraped:", community_maps)
 
-# Format community rotation with ⚠️ for maps not in official list
+# ✅ Only show community maps that match official rotation
 formatted_community = []
 for map_name in community_maps:
-    warning = " ⚠️ This map might not be in the current live rotation." if map_name not in official_maps else ""
-    formatted_community.append(f"- {map_name}{warning}")
+    if map_name in official_maps:
+        formatted_community.append(f"- {map_name}")
 formatted_community_str = "\n".join(formatted_community) if formatted_community else "*No maps found.*"
 
 # Final message to Discord
