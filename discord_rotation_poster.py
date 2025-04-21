@@ -19,24 +19,24 @@ official_maps = [name for name, _ in PC_ROTATION]
 # Format official rotation for message
 formatted_official = "\n".join([f"- {name} — {percent}" for name, percent in PC_ROTATION])
 
-# Scrape community rotation from pubgchallenge.co using actual h3 tags
+# ✅ NEW scraper that finds the correct PC maps from h3 headers
 def get_community_maps():
     url = "https://pubgchallenge.co/pubg-map-rotation"
-    headers = {
-        "User-Agent": "Mozilla/5.0"
-    }
-
+    headers = {"User-Agent": "Mozilla/5.0"}
     response = requests.get(url, headers=headers)
     soup = BeautifulSoup(response.text, "html.parser")
     maps = []
 
     try:
-        # Locate the PC section by finding the "🖥️ PC Normal Match" header
-        pc_section = soup.find("h2", string="🖥️ PC Normal Match")
-        if pc_section:
-            for h3 in pc_section.find_all_next("h3", limit=5):
-                name = h3.get_text(strip=True)
-                if name and name not in maps:
+        # Find the PC section by matching the exact text node
+        current_rotation_header = soup.find("h2", string=lambda s: s and "Current PUBG Map Rotation (PC)" in s)
+        if current_rotation_header:
+            for sibling in current_rotation_header.find_all_next("h3"):
+                name = sibling.get_text(strip=True)
+                if name in [
+                    "Erangel", "Deston", "Vikendi", "Miramar", "Taego", 
+                    "Paramo", "Rondo", "Haven", "Karakin", "Sanhok"
+                ] and name not in maps:
                     maps.append(name)
     except Exception as e:
         print("Error scraping community maps:", e)
