@@ -1,15 +1,32 @@
 from datetime import date
+import requests
+from bs4 import BeautifulSoup
 
 OUTPUT_FILE = "index.html"
 
-PC_ROTATION = [
-    ("Erangel", "33%"),
-    ("Deston", "17%"),
-    ("Vikendi", "17%"),
-    ("Miramar", "17%"),
-    ("Taego", "17%")
-]
+# ⬇️ Scrape PC Normal Match rotation from pubgchallenge.co
+def fetch_pc_rotation():
+    url = "https://pubgchallenge.co/pubg-map-rotation"
+    headers = {
+        "User-Agent": "Mozilla/5.0"
+    }
+    response = requests.get(url, headers=headers)
+    soup = BeautifulSoup(response.text, "html.parser")
 
+    pc_map_data = []
+    map_rows = soup.select("div.map-rotation div.map-row")
+    for row in map_rows:
+        name = row.select_one("span.map-name")
+        percent = row.select_one("span.map-percentage")
+        if name and percent:
+            pc_map_data.append((name.get_text(strip=True), percent.get_text(strip=True)))
+
+    return pc_map_data
+
+# 🧭 Pull live PC rotation
+PC_ROTATION = fetch_pc_rotation()
+
+# 🎮 Console rotation is still hardcoded
 CONSOLE_ROTATION = [
     ("Erangel", "36%"),
     ("Vikendi", "18%"),
@@ -78,9 +95,10 @@ html = f"""<!DOCTYPE html>
 """
 
 for name, percent in PC_ROTATION:
+    img_url = MAP_IMAGES.get(name, "")
     html += f"""
   <div class='map'>
-    <img src='{MAP_IMAGES[name]}' alt='{name} map'>
+    <img src='{img_url}' alt='{name} map'>
     <div><strong>{name}</strong> — {percent}</div>
   </div>
 """
@@ -90,9 +108,10 @@ html += """
 """
 
 for name, percent in CONSOLE_ROTATION:
+    img_url = MAP_IMAGES.get(name, "")
     html += f"""
   <div class='map'>
-    <img src='{MAP_IMAGES[name]}' alt='{name} map'>
+    <img src='{img_url}' alt='{name} map'>
     <div><strong>{name}</strong> — {percent}</div>
   </div>
 """
