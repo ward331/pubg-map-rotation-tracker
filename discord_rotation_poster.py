@@ -21,6 +21,7 @@ def get_community_maps():
     url = "https://pubgchallenge.co/pubg-map-rotation"
     headers = {"User-Agent": "Mozilla/5.0"}
     response = requests.get(url, headers=headers)
+    print(response.text)  # 🔍 Debug: Show raw HTML from site
     soup = BeautifulSoup(response.text, "html.parser")
     map_data = []
 
@@ -73,5 +74,3 @@ message = f"""📢 PUBG PC Map Rotation Update — {today}
 
 # Post to Discord
 requests.post(WEBHOOK_URL, json={"content": message})
-
-print(response.text)
