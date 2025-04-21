@@ -73,3 +73,5 @@ message = f"""📢 PUBG PC Map Rotation Update — {today}
 
 # Post to Discord
 requests.post(WEBHOOK_URL, json={"content": message})
+
+print(response.text)
