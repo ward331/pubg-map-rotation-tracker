@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 
 OUTPUT_FILE = "index.html"
 
-# ⬇️ Scrape PC Normal Match rotation from pubgchallenge.co
+# 🔍 Scrape PC Normal Match rotation from pubgchallenge.co
 def fetch_pc_rotation():
     url = "https://pubgchallenge.co/pubg-map-rotation"
     headers = {
@@ -13,27 +13,21 @@ def fetch_pc_rotation():
     response = requests.get(url, headers=headers)
     soup = BeautifulSoup(response.text, "html.parser")
 
+    # Find the PC Normal Match section only
+    pc_section = soup.find("h2", string="PC Normal Match")
     pc_map_data = []
-    map_rows = soup.select("div.map-rotation div.map-row")
-    for row in map_rows:
-        name = row.select_one("span.map-name")
-        percent = row.select_one("span.map-percentage")
-        if name and percent:
-            pc_map_data.append((name.get_text(strip=True), percent.get_text(strip=True)))
+    if pc_section:
+        map_rows = pc_section.find_next("div", class_="map-rotation").find_all("div", class_="map-row")
+        for row in map_rows:
+            name = row.select_one("span.map-name")
+            percent = row.select_one("span.map-percentage")
+            if name and percent:
+                pc_map_data.append((name.get_text(strip=True), percent.get_text(strip=True)))
 
     return pc_map_data
 
-# 🧭 Pull live PC rotation
+# ✅ Pull live PC rotation
 PC_ROTATION = fetch_pc_rotation()
-
-# 🎮 Console rotation is still hardcoded
-CONSOLE_ROTATION = [
-    ("Erangel", "36%"),
-    ("Vikendi", "18%"),
-    ("Paramo", "9%"),
-    ("Rondo", "18%"),
-    ("Miramar", "18%")
-]
 
 MAP_IMAGES = {
     "Erangel": "https://www.pubg.com/wp-content/uploads/2023/12/Erangel_Map.jpg",
@@ -89,25 +83,12 @@ html = f"""<!DOCTYPE html>
 </head>
 <body>
   <h1>PUBG Map Rotation Tracker</h1>
-  <p>Updated automatically from GitHub Actions.</p>
+  <p>Updated automatically from PUBGChallenge.co.</p>
 
   <h2>🖥️ PC Normal Match</h2>
 """
 
 for name, percent in PC_ROTATION:
-    img_url = MAP_IMAGES.get(name, "")
-    html += f"""
-  <div class='map'>
-    <img src='{img_url}' alt='{name} map'>
-    <div><strong>{name}</strong> — {percent}</div>
-  </div>
-"""
-
-html += """
-  <h2>🎮 Console Normal Match</h2>
-"""
-
-for name, percent in CONSOLE_ROTATION:
     img_url = MAP_IMAGES.get(name, "")
     html += f"""
   <div class='map'>
@@ -127,7 +108,7 @@ html += f"""
 with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
     f.write(html)
 
-# Log the output in GitHub Actions for debugging
+# 👀 Preview output in log for GitHub Actions or Railway
 with open(OUTPUT_FILE, "r", encoding="utf-8") as f:
     print("✅ index.html content preview:\n")
     print(f.read())
