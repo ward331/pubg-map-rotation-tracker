@@ -5,7 +5,6 @@ from bs4 import BeautifulSoup
 
 OUTPUT_FILE = "index.html"
 
-# 🔍 Scrape PC Normal Match rotation from pubgchallenge.co
 def fetch_pc_rotation():
     url = "https://pubgchallenge.co/pubg-map-rotation"
     headers = {
@@ -14,20 +13,31 @@ def fetch_pc_rotation():
     response = requests.get(url, headers=headers)
     soup = BeautifulSoup(response.text, "html.parser")
 
+    # DEBUG: print out the h2 tags found
+    print("🧪 Found H2 section titles:")
+    for h2 in soup.find_all("h2"):
+        print("-", h2.get_text(strip=True))
+
     # Find the PC Normal Match section only
     pc_section = soup.find("h2", string="PC Normal Match")
     pc_map_data = []
+
     if pc_section:
-        map_rows = pc_section.find_next("div", class_="map-rotation").find_all("div", class_="map-row")
+        rotation_div = pc_section.find_next("div", class_="map-rotation")
+        print("\n🧪 Raw HTML of PC rotation section:")
+        print(rotation_div)
+
+        map_rows = rotation_div.find_all("div", class_="map-row")
         for row in map_rows:
             name = row.select_one("span.map-name")
             percent = row.select_one("span.map-percentage")
             if name and percent:
                 pc_map_data.append((name.get_text(strip=True), percent.get_text(strip=True)))
+    else:
+        print("❌ 'PC Normal Match' section not found!")
 
     return pc_map_data
 
-# ✅ Pull live PC rotation
 PC_ROTATION = fetch_pc_rotation()
 
 MAP_IMAGES = {
@@ -109,7 +119,7 @@ html += f"""
 with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
     f.write(html)
 
-# 👀 Preview output in log for GitHub Actions or Railway
+# Log index.html preview
 with open(OUTPUT_FILE, "r", encoding="utf-8") as f:
     print("✅ index.html content preview:\n")
     print(f.read())
