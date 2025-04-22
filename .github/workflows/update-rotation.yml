@@ -1,0 +1,36 @@
+name: Auto Update Map Rotation
+
+on:
+  schedule:
+    - cron: "50 4 * * *"  # 4:50 AM UTC
+    - cron: "50 14 * * *" # 2:50 PM UTC
+    - cron: "50 18 * * *" # 6:50 PM UTC
+    - cron: "50 20 * * *" # 8:50 PM UTC
+  workflow_dispatch:      # Allow manual run
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4
+
+      - name: Run updater script
+        run: python pubg_map_rotation_updater.py
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "🔁 Auto-update map rotation"
+          git push
