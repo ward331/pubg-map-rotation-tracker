@@ -1,41 +1,31 @@
-import os
-import json
-import requests
-from datetime import datetime
+name: Fetch and Post PUBG Map Rotation
 
-def load_rotation_data():
-    with open("rotation_data.json", "r", encoding="utf-8") as f:
-        return json.load(f)
+on:
+  schedule:
+    - cron: '0 9 * * *'  # Runs every day at 9:00 UTC (5 AM EST)
+  workflow_dispatch:    # Allows you to manually trigger it too
 
-def post_to_discord(message, webhook_url):
-    payload = {
-        "content": message
-    }
-    response = requests.post(webhook_url, json=payload)
+jobs:
+  fetch-and-post:
+    runs-on: ubuntu-latest
 
-    if response.status_code != 204:
-        print(f"Failed to send message to Discord. Status code: {response.status_code}, Response: {response.text}")
-    else:
-        print("Message successfully posted to Discord.")
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-def main():
-    # Safely get the Discord webhook URL
-    webhook_url = os.getenv("DISCORD_WEBHOOK_URL")
-    if not webhook_url:
-        raise ValueError("DISCORD_WEBHOOK_URL is not set. Please check your environment variables or GitHub Secrets.")
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
 
-    rotation_data = load_rotation_data()
+      - name: Install Python dependencies
+        run: |
+          pip install requests beautifulsoup4
 
-    today_str = datetime.utcnow().strftime("%B %d, %Y")
-    maps = rotation_data.get("maps", [])
+      - name: Fetch latest PUBG rotation data
+        run: |
+          python pubg_map_rotation_updater.py
 
-    # Build the message
-    message = f"📢 PUBG PC Map Rotation Update — {today_str}\n\n🖥️ PC Normal Match\n"
-    for map_name in maps:
-        message += f"- {map_name}\n"
-
-    # Post the message
-    post_to_discord(message, webhook_url)
-
-if __name__ == "__main__":
-    main()
+      - name: Post rotation to Discord
+        run: |
+          python discord_rotation_poster.py
