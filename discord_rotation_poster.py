@@ -1,40 +1,41 @@
-import requests
-from bs4 import BeautifulSoup
 import os
-from datetime import date
+import json
+import requests
+from datetime import datetime
 
-# Load Discord webhook from environment variable
-WEBHOOK_URL = os.environ["DISCORD_WEBHOOK_URL"]
+def load_rotation_data():
+    with open("rotation_data.json", "r", encoding="utf-8") as f:
+        return json.load(f)
 
-def fetch_pc_rotation():
-    url = "https://pubgchallenge.co/pubg-map-rotation"
-    headers = {
-        "User-Agent": "Mozilla/5.0"
+def post_to_discord(message, webhook_url):
+    payload = {
+        "content": message
     }
-    response = requests.get(url, headers=headers)
-    soup = BeautifulSoup(response.text, "html.parser")
+    response = requests.post(webhook_url, json=payload)
 
-    pc_map_data = []
-    pc_table = soup.find("table", id="pc-normal-match")
-    if pc_table:
-        rows = pc_table.find_all("tr")[1:]
-        for row in rows:
-            cols = row.find_all("td")
-            if len(cols) >= 2:
-                name = cols[0].text.strip()
-                percent = cols[1].text.strip()
-                pc_map_data.append((name, percent))
-    return pc_map_data
+    if response.status_code != 204:
+        print(f"Failed to send message to Discord. Status code: {response.status_code}, Response: {response.text}")
+    else:
+        print("Message successfully posted to Discord.")
 
-# Get the latest rotation
-PC_ROTATION = fetch_pc_rotation()
+def main():
+    # Safely get the Discord webhook URL
+    webhook_url = os.getenv("DISCORD_WEBHOOK_URL")
+    if not webhook_url:
+        raise ValueError("DISCORD_WEBHOOK_URL is not set. Please check your environment variables or GitHub Secrets.")
 
-# Build the message
-today = date.today().strftime("%B %d, %Y")
-message = f"""📢 **PUBG PC Map Rotation Update** — {today}
+    rotation_data = load_rotation_data()
 
-🖥️ **PC Normal Match**
-""" + "\n".join([f"- {name} — {percent}" for name, percent in PC_ROTATION])
+    today_str = datetime.utcnow().strftime("%B %d, %Y")
+    maps = rotation_data.get("maps", [])
 
-# Post to Discord
-requests.post(WEBHOOK_URL, json={"content": message})
+    # Build the message
+    message = f"📢 PUBG PC Map Rotation Update — {today_str}\n\n🖥️ PC Normal Match\n"
+    for map_name in maps:
+        message += f"- {map_name}\n"
+
+    # Post the message
+    post_to_discord(message, webhook_url)
+
+if __name__ == "__main__":
+    main()
