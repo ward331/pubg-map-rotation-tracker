@@ -7,11 +7,16 @@ def fetch_pc_rotation():
     soup = BeautifulSoup(response.text, "html.parser")
 
     pc_map_data = []
-    map_rows = soup.select("div.map-rotation div.map-row")  # Adjust this selector as needed
-    for row in map_rows:
-        name = row.select_one("span.map-name")  # Adjust this selector as needed
-        percent = row.select_one("span.map-percentage")  # Adjust this selector as needed
-        if name and percent:
-            pc_map_data.append((name.get_text(strip=True), percent.get_text(strip=True)))
+
+    # The new structure uses table rows under id="pc-normal-match"
+    pc_table = soup.find("table", id="pc-normal-match")
+    if pc_table:
+        rows = pc_table.find_all("tr")[1:]  # Skip the header row
+        for row in rows:
+            cols = row.find_all("td")
+            if len(cols) >= 2:
+                name = cols[0].text.strip()
+                percent = cols[1].text.strip()
+                pc_map_data.append((name, percent))
 
     return pc_map_data
