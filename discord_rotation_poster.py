@@ -11,6 +11,12 @@ ROTATION_URL = f"http://api.scraperapi.com/?api_key={SCRAPER_API_KEY}&url=https:
 def fetch_pc_rotation():
     headers = {"User-Agent": "Mozilla/5.0"}
     response = requests.get(ROTATION_URL, headers=headers)
+
+    # Debug output to log what GitHub sees
+    print("=== RAW HTML BEGIN ===")
+    print(response.text[:1000])  # Print first 1000 characters only
+    print("=== RAW HTML END ===")
+
     soup = BeautifulSoup(response.text, "html.parser")
 
     maps = []
@@ -47,3 +53,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
