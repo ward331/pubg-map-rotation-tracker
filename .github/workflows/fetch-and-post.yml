@@ -2,8 +2,8 @@ name: Fetch and Post PUBG Map Rotation
 
 on:
   schedule:
-    - cron: '0 9 * * *'  # Runs every day at 9:00 UTC (5 AM EST)
-  workflow_dispatch:    # Allows you to manually trigger it too
+    - cron: '0 9 * * *'  # Runs daily at 9:00 UTC (5 AM EST)
+  workflow_dispatch:    # Allows manual triggering
 
 jobs:
   fetch-and-post:
@@ -27,5 +27,7 @@ jobs:
           python pubg_map_rotation_updater.py
 
       - name: Post rotation to Discord
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
           python discord_rotation_poster.py
