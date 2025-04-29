@@ -12,10 +12,10 @@ def fetch_pc_rotation():
     headers = {"User-Agent": "Mozilla/5.0"}
     response = requests.get(ROTATION_URL, headers=headers)
 
-    # Debug output to log what GitHub sees
-    print("=== RAW HTML BEGIN ===")
-    print(response.text[:1000])  # Print first 1000 characters only
-    print("=== RAW HTML END ===")
+    # 👇 Dump full HTML so we can inspect what ScraperAPI returns
+    print("=== FULL HTML RAW DUMP ===")
+    print(response.text)
+    print("=== END DUMP ===")
 
     soup = BeautifulSoup(response.text, "html.parser")
 
@@ -52,7 +52,4 @@ def main():
     post_to_discord(maps)
 
 if __name__ == "__main__":
-
-
     main()
-
