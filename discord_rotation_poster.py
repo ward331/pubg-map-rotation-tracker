@@ -52,5 +52,7 @@ def main():
     post_to_discord(maps)
 
 if __name__ == "__main__":
+
+
     main()
 
